@@ -1,5 +1,7 @@
 package com.siotman.wos.yourpaper.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.siotman.wos.jaxws2rest.domain.dto.LamrResultsDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -18,6 +20,7 @@ public class PaperUrls {
     private String relatedRecordsUrl;
 
     @OneToOne(mappedBy = "paperUrls")
+    @JsonIgnore
     private Paper paper;
 
     @Builder
@@ -25,5 +28,15 @@ public class PaperUrls {
         this.sourceUrl = sourceUrl;
         this.citingArticlesUrl = citingArticlesUrl;
         this.relatedRecordsUrl = relatedRecordsUrl;
+    }
+
+    public static PaperUrls buildWithCacheData(LamrResultsDto lamrResultsDto) {
+        if (lamrResultsDto == null) return null;
+
+        return PaperUrls.builder()
+                .sourceUrl(lamrResultsDto.getSourceURL())
+                .citingArticlesUrl(lamrResultsDto.getCitingArticlesURL())
+                .relatedRecordsUrl(lamrResultsDto.getRelatedRecordsURL())
+                .build();
     }
 }

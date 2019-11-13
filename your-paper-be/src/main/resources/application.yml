@@ -1,14 +1,21 @@
+
+
 spring:
   profiles:
     active:
       - dev
 #      - prod
 
+
 ---
+server:
+  port: 9401
+
 logging:
   level:
     .: INFO
-#    org.springframework.security: DEBUG
+    org.hibernate: WARN
+    org.springframework: WARN
 
 spring:
   profiles: dev
@@ -26,16 +33,23 @@ spring:
 
 
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-      ddl-auto: create-drop
+      ddl-auto: update
 
+  rabbitmq:
+    addresses: localhost
+    username: ${LOCAL_MQ_USERNAME}
+    password: ${LOCAL_MQ_PASSWORD}
 ---
+server:
+  port: 9402
+
 logging:
   level:
-    .: error
-    org.springframework: ERROR
+    .: WARN
+    org.springframework: WARN
 
 spring:
   profiles: prod
@@ -54,9 +68,13 @@ spring:
 
 
   jpa:
-    show-sql: true
+    show-sql: false
     database: mysql
     hibernate:
       dialect: org.hibernate.dialect.MySQL5InnoDBDialect
       ddl-auto: update
 
+  rabbitmq:
+    addresses: localhost
+    username: ${LOCAL_MQ_USERNAME}
+    password: ${LOCAL_MQ_PASSWORD}

@@ -1,9 +1,9 @@
 package com.siotman.wos.yourpaper.domain.entity;
 
-import com.siotman.wos.yourpaper.domain.converter.JsonJournalImpactConverter;
-import com.siotman.wos.yourpaper.domain.converter.JsonListConverter;
-import com.siotman.wos.yourpaper.domain.converter.JsonMapConverter;
-import com.siotman.wos.yourpaper.domain.converter.JsonParsedAuthorListConverter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.siotman.wos.yourpaper.domain.converter.*;
+import com.siotman.wos.yourpaper.domain.dto.ParsedDataDto;
+import com.siotman.wos.yourpaper.domain.json.CitingPaperJson;
 import com.siotman.wos.yourpaper.domain.json.JournalImpactJson;
 import com.siotman.wos.yourpaper.domain.json.ParsedAuthorJson;
 import lombok.*;
@@ -23,17 +23,19 @@ public class ParsedData {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "parsedData")
+    @JsonIgnore
     private Paper paper;
 
-    private String timesCited;
+    private Integer timesCited;
 
     private String reprint;
 
     @Convert(converter = JsonListConverter.class)
     private List<String> grades;
 
+    @Lob
     @Convert(converter = JsonMapConverter.class)
-    private Map<String, Integer> tcDataJson;
+    private Map<String, Map<String, Integer>> tcDataJson;
 
     @Lob
     @Convert(converter = JsonParsedAuthorListConverter.class)
@@ -43,19 +45,27 @@ public class ParsedData {
     @Convert(converter = JsonJournalImpactConverter.class)
     private JournalImpactJson journalImpactJson;
 
-    @Builder
+    @Lob
+    @Convert(converter = JsonCitingPaperListConverter.class)
+    private List<CitingPaperJson> citingPaperJsonList;
 
-    public ParsedData(String timesCited,
-                      String reprint,
-                      List<String> grades,
-                      Map<String, Integer> tcDataJson,
-                      List<ParsedAuthorJson> parsedAuthorJsonList,
-                      JournalImpactJson journalImpactJson) {
+    @Builder
+    public ParsedData(
+            Paper paper,
+            Integer timesCited, String reprint,
+            List<String> grades, Map<String, Map<String, Integer>> tcDataJson,
+            List<ParsedAuthorJson> parsedAuthorJsonList,
+            JournalImpactJson journalImpactJson,
+            List<CitingPaperJson> citingPaperJsonList
+    ) {
+        this.paper       = paper;
+
         this.timesCited = timesCited;
-        this.reprint = reprint;
-        this.grades = grades;
+        this.reprint    = reprint;
+        this.grades     = grades;
         this.tcDataJson = tcDataJson;
-        this.parsedAuthorJsonList = parsedAuthorJsonList;
-        this.journalImpactJson = journalImpactJson;
+        this.parsedAuthorJsonList   = parsedAuthorJsonList;
+        this.journalImpactJson      = journalImpactJson;
+        this.citingPaperJsonList    = citingPaperJsonList;
     }
 }
