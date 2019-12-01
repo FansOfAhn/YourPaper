@@ -42,11 +42,11 @@ public class SessionController {
         return response;
     }
 
-    @PostMapping(value = "/autoSearchAndAdd")
-    public ResponseEntity<?> autoSearchAndAdd(MemberDto dto) throws IOException {
+    @PostMapping(value = "/searchByAuthorsAndAdd")
+    public ResponseEntity<?> searchByAuthorsAndAdd(@RequestBody MemberDto dto) throws IOException {
         ResponseEntity<?> response;
 
-        List<MemberPaper> memberPapers = memberPaperService.searchAndAddByMember(dto);
+        List<MemberPaper> memberPapers = memberPaperService.searchByAuthorsAndAdd(dto);
 
         response = ResponseEntity.ok(memberPapers);
         return response;
@@ -62,11 +62,20 @@ public class SessionController {
         return response;
     }
 
-    @PostMapping(value = "availableCheck")
+    @PostMapping(value = "/availableCheck")
     public ResponseEntity<?> availableCheck(@RequestBody MemberDto dto) {
         ResponseEntity<?> response;
 
         Boolean result = memberService.availableCheck(dto.getUsername());
+        response = ResponseEntity.ok().body(result);
+        return response;
+    }
+
+    @PostMapping(value = "/delete")
+    public ResponseEntity<?> delete(@RequestBody MemberDto dto) {
+        ResponseEntity<?> response;
+
+        Boolean result = memberService.delete(dto.getUsername());
         response = ResponseEntity.ok().body(result);
         return response;
     }

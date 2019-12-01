@@ -44,7 +44,7 @@ export default function LoginPage(props) {
       >
         <div className={classes.container}>
           <GridContainer justify="center">
-            <GridItem xs={12} sm={8} md={4}>
+            <GridItem xs={12} sm={8} md={(!contentNo)? 4 : 6}>
               {contents[contentNo]}
             </GridItem>
           </GridContainer>

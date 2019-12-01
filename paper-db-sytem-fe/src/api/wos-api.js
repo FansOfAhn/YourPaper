@@ -69,7 +69,7 @@ export class WokSearchClient {
     }
 
     initQueryState(sid, queryId, recordsFound) {
-        const endPage       = Math.ceil(recordsFound / this.pageState.pageSize);
+        const endPage       = (this.pageState.pageSize !== 0)? Math.ceil(recordsFound / this.pageState.pageSize) : 1;
         const pageList      = [];
         const firstRecord   = 1;
         const currentPage   = 1;
@@ -169,7 +169,7 @@ export class WokSearchClient {
             console.log("BuildUserQuery 인자 유효성 확인 완료");
         }
         
-        organizations = (Array.isArray(organizations) && organizations.length != 0 && organizations) || '';
+        organizations = (Array.isArray(organizations) && organizations.length != 0 && organizations[0] && organizations) || '';
 
         const organizationQuery = organizations && `AD=(${organizations.map(item => `(${item})`).join(" OR ")}) AND `;
         let userQuery = `${organizationQuery}`;
@@ -193,7 +193,7 @@ export class WokSearchClient {
         this.loading    = true;
         this.noLAMR   = noLAMR;
 
-        if (!symbolicTimeSpan && !begin.match(this.timeSpanRegex) || !end.match(this.timeSpanRegex)) {
+        if (!symbolicTimeSpan && (!begin.match(this.timeSpanRegex) || !end.match(this.timeSpanRegex))) {
             console.error("WokSearchClient search의 인자가 유효하지 않습니다.");
             return;
         } else {

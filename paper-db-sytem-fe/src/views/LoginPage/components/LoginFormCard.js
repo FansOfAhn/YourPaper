@@ -98,7 +98,7 @@ export default function LoginForm(props) {
                 로그인
             </Button>
             <Button onClick={() => props.setContentNo(1)} simple color="danger" size="lg">
-                가입하기
+                등록
             </Button>
             </CardFooter>
         </Card>

@@ -179,7 +179,7 @@ public class MemberPaperService {
      * @return
      * @throws IOException
      */
-    public List<MemberPaper> searchAndAddByMember(MemberDto dto) throws IOException {
+    public List<MemberPaper> searchByAuthorsAndAdd(MemberDto dto) throws IOException {
         String username = dto.getUsername();
         MemberInfoDto memberInfoDto = dto.getMemberInfoDto();
 
@@ -224,6 +224,7 @@ public class MemberPaperService {
                                     .paper(paper)
                                     .build())
                 );
+                paperRepository.save(paper);
             }
 
             addingList.add(

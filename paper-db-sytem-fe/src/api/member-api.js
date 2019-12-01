@@ -17,8 +17,6 @@ export default class MemberApi {
 
     // 회원가입
     register(username, password, name, authorNameList, organizationList) {
-        event.preventDefault();
-        
         const data = {
             'username': username,
             'password': password,
@@ -30,6 +28,22 @@ export default class MemberApi {
         }
 
         return axios.post(`${this.SERVER_URL}/auth/register`, data).then(response => {
+            return response.data;
+        });
+    }
+    // 저자 영문명 리스트로 자동 추가
+    searchByAuthorsAndAdd(username, password, name, authorNameList, organizationList) {
+        const data = {
+            'username': username,
+            'password': password,
+            'memberInfoDto': {
+                'name': name,
+                'authorNameList': authorNameList,
+                'organizationList': organizationList,
+            }
+        }
+
+        return axios.post(`${this.SERVER_URL}/auth/searchByAuthorsAndAdd`, data).then(response => {
             return response.data;
         });
     }

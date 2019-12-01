@@ -45,6 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/batch/**").permitAll()
                 .antMatchers("/parsedData/**").permitAll()
+                .antMatchers("/auth/delete").hasAnyRole("ADMIN", "USER")
                 .antMatchers("/auth/login").hasAnyRole("ADMIN", "USER")
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers("/", "/landing").permitAll()
