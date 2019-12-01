@@ -4,7 +4,9 @@ import com.siotman.wos.yourpaper.domain.dto.MemberDto;
 import com.siotman.wos.yourpaper.domain.entity.Member;
 import com.siotman.wos.yourpaper.exception.MemberIsAlreadyPresentException;
 import com.siotman.wos.yourpaper.exception.NoSuchMemberException;
+import com.siotman.wos.yourpaper.repo.MemberPaperRepository;
 import com.siotman.wos.yourpaper.repo.MemberRepository;
+import com.siotman.wos.yourpaper.repo.PaperRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,5 +56,11 @@ public class MemberService {
         targetMember.update(dto);
 
         return MemberDto.buildWithMember(targetMember);
+    }
+
+    public Boolean delete(String username) {
+        Member one = memberRepository.getOne(username);
+        memberRepository.delete(one);
+        return true;
     }
 }

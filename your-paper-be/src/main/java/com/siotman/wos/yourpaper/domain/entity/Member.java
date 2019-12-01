@@ -29,7 +29,7 @@ public class Member {
     @JoinColumn(name = "info_id", referencedColumnName = "id")
     private MemberInfo memberInfo;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonIgnore
     private Set<MemberPaper> papers;
 

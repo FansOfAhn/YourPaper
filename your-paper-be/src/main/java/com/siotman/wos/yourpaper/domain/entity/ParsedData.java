@@ -28,6 +28,7 @@ public class ParsedData {
 
     private Integer timesCited;
 
+    @Convert(converter = ParsedAuthorConverter.class)
     private ParsedAuthorJson reprint;
 
     @Convert(converter = JsonListConverter.class)

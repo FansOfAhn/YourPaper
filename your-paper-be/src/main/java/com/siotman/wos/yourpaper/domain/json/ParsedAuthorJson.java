@@ -6,6 +6,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode
 public class ParsedAuthorJson {
     private String name;
     private String fullName;
