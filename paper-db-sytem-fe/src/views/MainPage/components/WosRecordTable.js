@@ -100,7 +100,7 @@ export default function WosRecordTable(props) {
                         {pageState.firstRecord + idx}
                     </TableCell>
                     {record.map((value, jdx) => {
-                        if (jdx === 1) return <TableCell className={classes.cell} key={`val-${jdx}`} component="td" align="right"><a href={value}>이동</a></TableCell>;
+                        if (headers[jdx] === '링크') return <TableCell className={classes.cell} key={`val-${jdx}`} component="td" align="right"><a href={value}>이동</a></TableCell>;
 
                         return <TableCell className={classes.cell} key={`val-${jdx}`} component="td" align="right">{value}</TableCell>;
                     })}

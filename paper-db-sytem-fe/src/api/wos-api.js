@@ -1,6 +1,8 @@
 /* eslint-disable */
 import axios from 'axios'
 
+export const authorTypeEnum = {REFFERING:'REFFERING', GENERAL:'GENERAL', REPRINT:'REPRINT'};
+
 export class WokSearchClient {
     constructor(SERVER_URL) {
         this.SERVER_URL     = SERVER_URL;
@@ -38,22 +40,20 @@ export class WokSearchClient {
         this.currentSid = 0;
     }
     // ex. [1, 2, 3, 6, 10]
-
     getHeaders(filter) {
-        const filterSet = new Set(filter);
-        return this.ColEnum.header.filter((e, idx) => {
-            if (filterSet.has(idx)) return true;
-            else                    return false;
+        const filtered = [];
+        filter.forEach(colNo => {
+            filtered.push(this.ColEnum.header[colNo]);
         });
+        return filtered;
     }
-
     getRecords(filter) {
-        const filterSet = new Set(filter);
         return this.records.map(record => {
-            return record.filter((e, idx) => {
-                if (filterSet.has(idx)) return true;
-                else                    return false;
+            const filtered = [];
+            filter.forEach(colNo => {
+                filtered.push(record[colNo]);
             });
+            return filtered;
         });
     }
     getPageState() {
@@ -329,5 +329,27 @@ export class WokSearchClient {
         };
         const data = {uids};
         return axios.post(this.SERVER_URL + 'LamrService/lamrCorCollectionData', data);
+    }
+
+    findAuthorTypeOnIdxByAuthorNames(idx, authors) {
+        if (!authors) return authorTypeEnum.REFFERING;
+        const authorRegex = / |\'|\-|\,/g;
+        const record = this.rawRecords[idx];
+
+        for (let i = 0; i < authors.length; i++) {
+            const author = authors[i];
+            if (!author) continue;
+            const query = new RegExp(author.replace(authorRegex, ''), 'i');
+
+            for (let j = 0; j < record.authors.length; j++) {
+                const target = record.authors[j];
+                
+                if (query.test(target.replace(authorRegex, ''))) {
+                    return (j === 0)? authorTypeEnum.REPRINT : authorTypeEnum.GENERAL;
+                }
+            }
+        }
+
+        return authorTypeEnum.REFFERING;
     }
 }

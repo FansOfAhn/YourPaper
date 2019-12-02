@@ -1,6 +1,8 @@
 
 import { JAX2REST_SERVER_URL } from '_constants';
 import { WokSearchClient } from "api/wos-api.js";
+import { YOUR_PAPER_SERVER_URL } from '_constants';
+import { PaperRecordContainer, FIELD, CRITERIA } from "api/paper-api.js";
 
 import WosRecordTable from "./WosRecordTable.js";
 
@@ -14,10 +16,10 @@ import classNames from "classnames";
 
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-import { InputAdornment, CircularProgress } from "@material-ui/core";
+import { InputAdornment, CircularProgress, Checkbox, Button } from "@material-ui/core";
 
 // @material-ui/icons
-import { Search, Work } from "@material-ui/icons";
+import { Search, Work, Check } from "@material-ui/icons";
 
 import CustomInput from "components/CustomInput/CustomInput.js";
 import CustomDropdown from "components/CustomDropdown/CustomDropdown.js";
@@ -29,14 +31,19 @@ import GridContainer from "components/Grid/GridContainer";
 import GridItem from "components/Grid/GridItem";
 
 import styles from "assets/jss/material-kit-react/views/profilePage.js";
+import checkboxStyles from "assets/jss/material-kit-react/customCheckboxRadioSwitch.js";
 
 const useStyles = makeStyles(styles);
+const useCheckboxStyles = makeStyles(checkboxStyles);
 
 
 export default function WosSearch(props) {
     const classes = useStyles();
+    const cbClasses = useCheckboxStyles;
 
-    const [searchClient, ] = React.useState(new WokSearchClient(JAX2REST_SERVER_URL));
+    const member = JSON.parse(window.sessionStorage.getItem('member'));
+    const [searchClient, ] = React.useState(new WokSearchClient(JAX2REST_SERVER_URL));    
+    const [paperContainer,] = React.useState(new PaperRecordContainer(member.username, member.token, YOUR_PAPER_SERVER_URL));
 
     const nowDate = new Date();
     const aWeekAgo = new Date();
@@ -78,10 +85,47 @@ export default function WosSearch(props) {
         }
     };
 
-    const filter    = [3, 4, 7, 8, 9, 11, 12, 13, 19, 21];
+    const [uids, setUids] = React.useState([]);
+    const [authorTypes, setAuthorTypes] = React.useState([]);
+
+    const handleToggle = (idx, uid) => {
+        if (uids[idx]) {
+            uids[idx] = false;
+            authorTypes[idx] = false;
+        } else {
+            uids[idx] = uid;
+            // const authorType = searchClient.findAuthorTypeOnIdxByAuthorNames(idx, member.memberInfoDto.authorNameList);
+            const authorType = searchClient.findAuthorTypeOnIdxByAuthorNames(idx, ['Baik, Sungwook', 'Baik SW']);
+            authorTypes[idx] = authorType;
+            paperContainer.addOrUpdateOne(uid, authorType).then(res => {
+                console.log(res);
+                alert(`저자 타입, ${authorType} 으로 추가하였습니다.`);
+            }).catch(err => {
+                console.error(err);
+                alert('추가하는 중 오류가 발생했습니다.');
+            });
+        }
+        
+        setUids(uids);
+        setAuthorTypes(authorTypes);
+    };
+
+
+    const filter    = [3, 4, 7, 8, 9, 11, 12, 13, 19, 21, 1];
     const process = (res) => {
-        setRecords(searchClient.getRecords(filter));
-        setHeaders(searchClient.getHeaders(filter));
+        const records = searchClient.getRecords(filter);
+        const concatedRecords = records.map((r, idx) => 
+                [<Checkbox
+                    style={{ padding: '0px' }}
+                    key={r[10]}
+                    onClick={() => { handleToggle(idx, r[10]); }}
+                />].concat(r));
+
+        setRecords(concatedRecords);
+        setHeaders(['담기'].concat(searchClient.getHeaders(filter)));
+        
+        setUids(records.map(e => false));
+        setAuthorTypes(records.map(e => false));
         setPageState(searchClient.getPageState());
     }
     const onPageClick = (e) => {
@@ -101,6 +145,7 @@ export default function WosSearch(props) {
             setLoading(false);
         });
     };
+
     const setPageSize = (size) => {
         searchClient.setPageSize(size);
         onPageClick({ target: { innerText: `${1}` } });

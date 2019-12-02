@@ -11,7 +11,7 @@ import classNames from "classnames";
 
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-import { InputAdornment, CircularProgress } from "@material-ui/core";
+import { InputAdornment, CircularProgress, Checkbox } from "@material-ui/core";
 
 // @material-ui/icons
 import { Search } from "@material-ui/icons";
@@ -45,6 +45,8 @@ export default function DbSearch(props) {
     const [loading, setLoading] = React.useState(false);
     const Loading = loading? <CircularProgress/>: '';
 
+    const [deleted, setDeleted] = React.useState(new Set([]));
+
     // search(userQuery, begin, end, symbolicTimeSpan, noLAMR)
     const fieldChange = (e, field) => {
         if          (field === 'query') {
@@ -57,12 +59,41 @@ export default function DbSearch(props) {
 
     const filter    = [3, 4, 1, 2, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21];
     const process = (res) => {
-        setRecords(paperContainer.getRecords(filter));
-        setHeaders(paperContainer.getHeaders(filter));
+        const records = paperContainer.getRecords(filter);
+        const concatedRecords = records.map((r, idx) => 
+                [<Checkbox
+                    style={{ padding: '0px' }}
+                    key={r[10]}
+                    onClick={() => {
+                        if (deleted.has(r[2])) {
+                            paperContainer.addOrUpdateOne(r[2], r[5]).then(res => {
+                                console.log(res);
+                                alert(`저자 타입, ${r[5]} 으로 다시 추가하였습니다.`);
+                                deleted.delete(r[2]);
+                                setDeleted(deleted);
+                            }).catch(err => {
+                                console.error(err);
+                                alert('다시 추가하는 중 오류가 발생했습니다.');
+                            });
+                            return;
+                        }
+                        paperContainer.deleteOne(r[2]).then(res => {
+                            console.log(res);
+                            alert('성공적으로 삭제하였습니다.');
+                            deleted.add(r[2]);
+                            setDeleted(deleted);
+                        }).catch(err => {
+                            console.error(err);
+                            alert('레코드를 삭제하는 중 오류가 발생했습니다.');
+                        });
+                    }}
+                />].concat(r));
+
+        setRecords(concatedRecords);
+        setHeaders(['삭제'].concat(paperContainer.getHeaders(filter)));
         setPageState(paperContainer.getPageState());
-        console.log('pageSate', paperContainer.getPageState());
-        
     }
+
     const onPageClick = (e) => {
         setLoading(true);
         let amount = 5;
