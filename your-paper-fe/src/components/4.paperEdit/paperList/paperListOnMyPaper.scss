@@ -5,115 +5,6 @@
   height: auto;
   margin: 10px 0 10px 0;
 
-  .searchOnWOS {
-    width: 100.5%;
-    border-collapse: collapse;
-    border: 3px solid $basicIndigo;
-
-    .tableColumn {
-      width: 100%;
-      text-align: left;
-
-      .titleColumn {
-        width: 40%;
-        padding: 10px 0 10px 5px;
-        border: 3px solid $basicIndigo;
-        font-size: 1.3em;
-      }
-
-      .authorColumn {
-        width: 20%;
-        padding: 10px 0 10px 5px;
-        border: 3px solid $basicIndigo;
-        font-size: 1.3em;
-      }
-
-      .dateColumn {
-        width: 15%;
-        padding: 10px 0 10px 5px;
-        border: 3px solid $basicIndigo;
-        font-size: 1.3em;
-      }
-
-      .URLColumn {
-        padding: 10px 0 10px 5px;
-        border: 3px solid $basicIndigo;
-        font-size: 1.3em;
-        width: 15%;
-        font-size: 1.3em;
-        border-right: 0;
-        padding-left: 5px;
-      }
-
-      .buttonColumn {
-        width: 10%;
-        border-left: 0;
-        border-bottom: 3px solid $basicIndigo;
-      }
-    }
-
-    .tableResult {
-      width: 100%;
-      height: 40px;
-      text-align: left;
-      font-weight: bold;
-
-      .titleResult {
-        width: 40%;
-        border: 3px solid $basicIndigo;
-        padding-left: 5px;
-      }
-
-      .authorResult {
-        width: 20%;
-        border: 3px solid $basicIndigo;
-        padding-left: 5px;
-
-      }
-
-      .dateResult {
-        width: 15%;
-        border: 3px solid $basicIndigo;
-        padding-left: 5px;
-      }
-
-      .URLResult {
-        width: 15%;
-        border-right: 0;
-        border-bottom: 3px solid $basicIndigo;
-        padding-left: 5px;
-      }
-
-      .buttonResult {
-        width: 10%;
-        border-left: 0px;
-        border-bottom: 3px solid $basicIndigo;
-
-        .paperAddButton {
-          width: 90%;
-          height: 30px;
-          border: 3px solid $basicIndigo;
-          border-radius: 20px;
-          background-color: $basicIndigo;
-          color: $basicWhite;
-          outline: none;
-        }
-      }
-
-    }
-
-    .hoveringResult {
-      width: 100%;
-      height: 40px;
-
-      .hoverRender {
-        padding-left: 5px;
-        color: $basicOrange;
-        font-size: 1.3em;
-      }
-    }
-  }
-
   .searchOnMyPaper {
     margin-top: 10px;
     width: 100.5%;
@@ -240,37 +131,57 @@
   padding: 5px 0 5px 5px;
   width: 100%;
   max-width: 1000px;
-  // white-space: nowrap;
   word-break: break-all;
-  // overflow:hidden;
-  // word-wrap: break-word;
 }
 
 .pageChangeContainer {
   width: 100%;
+  height: 40px;
+  margin: 10px 0 10px 0;
   display: flex;
   flex-direction: row;
   justify-content: center;
 
   .preButton, .nextButton {
-    margin: 10px 5px 10px 5px;
-    width: 10%;
-    height: 30px;
+    width: 5%;
+    height: 100%;
     border-radius: 10px;
-    background-color: $basicOrange;
+    background-color: $basicIndigo;
     color: white;
-    border: $basicOrange;
+    border: $basicIndigo;
+  }
+
+  .pagingButtonContainer {
+    // width: 40%;
+    height: 100%;
+    margin: 0 10px 0 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    .pagingButton {
+      width: 40px;
+      margin: 0px 3px 0 3px;
+      background-color: $basicOrange;
+      border-radius: 10px;
+      border: none;
+      color: $basicWhite;
+      font-weight: bold;
+    }
   }
 }
 
-.loadingMessageContainer {
+.emptySearchContainer {
   border-bottom: 3px solid $basicIndigo;
-  padding: 10px 0 10px 0;
-  font-size: 1.3em;
-}
-
-.emptyMessageContainer {
   padding: 10px 0 10px 0;
   font-size: 1.3em;
   color: $basicGray;
 }
+
+.loadingSearchContainer {
+  border-bottom: 3px solid $basicIndigo;
+  padding: 10px 0 10px 0;
+  font-size: 1.3em;
+  color: $basicGray;  
+}
+

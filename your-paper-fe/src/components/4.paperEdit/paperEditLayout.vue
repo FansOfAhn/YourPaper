@@ -6,20 +6,26 @@
       </p>
     </div>
     <search-all-paper class="searchOnWOSComponent"></search-all-paper>
-    <paperList></paperList>
-    <!-- <button class="saveButton" type="button">Save</button> -->
+    <paperListOnWOS></paperListOnWOS>
+    <paperListOnMyPaper></paperListOnMyPaper>
   </div>
 </template>
 
 <script>
 import searchAllPaper from './searchAllPaper/searchAllPaperComponent.vue'
-import paperList from './paperList/paperListTable.vue'
+import paperListOnMyPaper from './paperList/paperListOnMyPaper.vue'
+import paperListOnWOS from './paperList/paperListOnWOS.vue'
 
 export default {
   name: 'paperEditLayout',
   components: {
     searchAllPaper,
-    paperList
+    paperListOnMyPaper,
+    paperListOnWOS
+  },
+  mounted () {
+    this.$store.dispatch('MEMBER_OBJECT_SET_ACTION')
+    this.$store.dispatch('MEMBER_PAPER_ACTION', [1, 3, 4, 6, 7, 9])
   }
 }
 </script>
