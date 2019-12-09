@@ -46,7 +46,7 @@ public class SessionController {
     public ResponseEntity<?> searchByAuthorsAndAdd(@RequestBody MemberDto dto) throws IOException {
         ResponseEntity<?> response;
 
-        List<MemberPaper> memberPapers = memberPaperService.searchByAuthorsAndAdd(dto);
+        List<MemberPaper> memberPapers = memberPaperService.searchPaperByMemberInfoAndAdd(dto);
 
         response = ResponseEntity.ok(memberPapers);
         return response;

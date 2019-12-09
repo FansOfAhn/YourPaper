@@ -91,7 +91,7 @@ public class MemberPaperServiceTests {
     @Test
     public void 유저_정보를_이용해_자동으로_검색하여_추가할_수_있다() throws NoSuchMemberException, IOException {
         MemberDto member = memberService.findById("test01");
-        List<MemberPaper> memberPapers = memberPaperService.searchByAuthorsAndAdd(member);
+        List<MemberPaper> memberPapers = memberPaperService.searchPaperByMemberInfoAndAdd(member);
 
         Assert.isTrue(memberPapers.size() == 50,
                 "추가된 논문 수가 맞지 않습니다.");

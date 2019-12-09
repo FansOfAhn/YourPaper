@@ -7,6 +7,7 @@ import com.siotman.wos.yourpaper.domain.criteria.MemberPaperCriteria;
 import com.siotman.wos.yourpaper.domain.criteria.MemberPaperSpecification;
 import com.siotman.wos.yourpaper.domain.dto.*;
 import com.siotman.wos.yourpaper.domain.entity.*;
+import com.siotman.wos.yourpaper.domain.json.ParsedAuthorJson;
 import com.siotman.wos.yourpaper.exception.NoSuchMemberException;
 import com.siotman.wos.yourpaper.repo.MemberPaperRepository;
 import com.siotman.wos.yourpaper.repo.MemberRepository;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MemberPaperService {
@@ -170,24 +172,13 @@ public class MemberPaperService {
         return memberPaperRepository.countByMember(member);
     }
 
-    /**
-     * 최근 5년 데이터 중,
-     * 사용자의 정보 (연관 기관, 영문 명 리스트) 를 이용해 검색하여,
-     * 반환된 결과에 대해 최대 50개까지 내 논문으로 등록한다.
-     *
-     * @param dto
-     * @return
-     * @throws IOException
-     */
-    public List<MemberPaper> searchByAuthorsAndAdd(MemberDto dto) throws IOException {
-        String username = dto.getUsername();
-        MemberInfoDto memberInfoDto = dto.getMemberInfoDto();
+    private String              _buildQuery(MemberInfoDto memberInfoDto) {
+        StringBuilder query = new StringBuilder();
 
         List<String> organizations  = memberInfoDto.getOrganizationList();      // 입력받은 소속 기관 목록
         List<String> authors        = memberInfoDto.getAuthorNameList();        // 입력받은 논문 상 영문명 목록
 
-        StringBuilder query = new StringBuilder();
-        if (memberInfoDto.getOrganizationList().size() > 0) {
+        if (organizations.size() > 0) {
             query
                     .append("AD=(")
                     .append(String.join(" OR ", organizations))
@@ -201,42 +192,98 @@ public class MemberPaperService {
                     .append(")");
         }
 
-        // WOS API 서버를 통해 5년 내 관련 데이터 검색 요청
-        SearchResultsDto searchResults = searchService.search(query.toString(),
-                "5year", 1, 50);
+        return query.toString();
+    }
+    private List<MemberPaper>   _mergeRecordData(SearchResultsDto searchResults) throws IOException {
+        List<MemberPaper> result = new LinkedList<>();
 
-        List<MemberPaper>   addingList      = new ArrayList<>();
-        List<PaperDto>      parsingList     = new ArrayList<>();
         List<LamrResultsDto> lamrData   = searchService.getLamrData(searchResults);
         List<LiteRecordDto> records     = searchResults.getRecords();
-        for (int idx = 0; idx < lamrData.size() && idx < records.size(); idx++) {
-            LiteRecordDto record    = records.get(idx);
-            LamrResultsDto lamr     = lamrData.get(idx);
-            Optional<Paper> paperOptional = paperRepository.findById(record.getUid());
-            Paper paper;
-            if (paperOptional.isPresent()) {
-                paper = paperOptional.get();
-            } else {
-                paper = Paper.buildWithWokResponse(record, lamr);
-                parsingList.add(
-                        PaperDto.buildWithMemberPaper(
-                                MemberPaper.builder()
-                                    .paper(paper)
-                                    .build())
-                );
-                paperRepository.save(paper);
-            }
 
-            addingList.add(
-                    MemberPaper.builder()
-                        .member(Member.builder().username(username).build())
-                        .paper(paper)
-                        .authorType(AuthorType.GENERAL)
-                        .build()
-            );
+        for (int idx = 0; idx < lamrData.size() && idx < records.size(); idx++) {
+            LiteRecordDto record = records.get(idx);
+            LamrResultsDto lamr = lamrData.get(idx);
+
+            result.add(MemberPaper.builder()
+                        .paper(Paper.buildWithWokResponse(record, lamr))
+                        .build());
         }
-        if (parsingList.size() > 0) asyncParsingTriggeringService.triggerAll(parsingList);
-        return memberPaperRepository.saveAll(addingList);
+
+        return result;
+    }
+    private boolean             _filterByExist(MemberPaper mp) {
+        return paperRepository.existsById(mp.getPaper().getUid());
+    }
+    private boolean             _filterByNotExist(MemberPaper mp) {
+        return !paperRepository.existsById(mp.getPaper().getUid());
+    }
+    private MemberPaper         _determineAuthorType(MemberPaper origin) {
+        Member member = origin.getMember();
+        Paper paper = origin.getPaper();
+
+        if (paper.getParsedData() == null)
+            return MemberPaper.builder()
+                    .paper(paper).member(member)
+                    .authorType(AuthorType.GENERAL)
+                .build();
+        else if (paper.getParsedData().getReprint() == null)
+            return MemberPaper.builder()
+                    .paper(paper).member(member)
+                    .authorType(AuthorType.GENERAL)
+                .build();
+
+        String regex = "[',\\- ]";
+        String reprint = paper.getParsedData().getReprint();
+        for (String name:
+             member.getMemberInfo().getAuthorNameList()) {
+
+            String target = name.replaceAll(regex, "");
+            if (target.equals(reprint.replaceAll(regex, ""))) {
+                return MemberPaper.builder()
+                        .paper(paper).member(member)
+                        .authorType(AuthorType.REPRINT)
+                    .build();
+            }
+        }
+
+        return MemberPaper.builder()
+                .paper(paper).member(member)
+                .authorType(AuthorType.GENERAL)
+                .build();
+    }
+    /**
+     * 최근 5년 데이터 중,
+     * 사용자의 정보 (연관 기관, 영문 명 리스트) 를 이용해 검색하여,
+     * 반환된 결과에 대해 최대 50개까지 내 논문으로 등록한다.
+     *
+     * @param dto
+     * @return
+     * @throws IOException
+     */
+    public List<MemberPaper> searchPaperByMemberInfoAndAdd(MemberDto dto) throws IOException {
+        String query = _buildQuery(dto.getMemberInfoDto());
+
+        // WOS API 서버를 통해 5년 내 관련 데이터 검색 요청
+        SearchResultsDto searchResults = searchService.search(query,
+                "5year", 1, 50);
+        List<MemberPaper>   records    = _mergeRecordData(searchResults);
+
+
+        // DB에 존재하지 않는 논문들에 대한 처리
+        asyncParsingTriggeringService.triggerAll(
+            records.stream()
+                    .filter(this::_filterByNotExist)
+                    .map(   PaperDto::buildWithMemberPaper)
+                    .collect(Collectors.toList())
+        );
+
+        // 이미 DB에 존재하는 논문에 대한 처리
+        return memberPaperRepository.saveAll(
+                records.stream()
+                        .filter(this::_filterByExist)
+                        .map(   this::_determineAuthorType)
+                        .collect(Collectors.toList())
+        );
     }
 
     @Autowired
