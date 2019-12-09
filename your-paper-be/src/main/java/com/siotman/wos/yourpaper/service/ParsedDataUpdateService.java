@@ -35,7 +35,7 @@ public class ParsedDataUpdateService {
             RecordState recordState = targetPaper.getRecordState();
 
             if (recordState.equals(RecordState.PARSING_CITATION_DONE)
-                && parsedDataDto.getRecordState().equals(RecordState.ERROR)) {
+                && parsedDataDto.getRecordState().equals(RecordState.PARSING_DETAIL_DONE)) {
                 targetPaper.setRecordState(RecordState.COMPLETED);
             } else {
                 targetPaper.setRecordState(parsedDataDto.getRecordState());
@@ -61,7 +61,7 @@ public class ParsedDataUpdateService {
             RecordState recordState = targetPaper.getRecordState();
 
             if (recordState.equals(RecordState.PARSING_DETAIL_DONE)
-                && parsedDataDto.getRecordState().equals(RecordState.ERROR)) {
+                && parsedDataDto.getRecordState().equals(RecordState.PARSING_CITATION_DONE)) {
                 targetPaper.setRecordState(RecordState.COMPLETED);
             } else {
                 targetPaper.setRecordState(parsedDataDto.getRecordState());

@@ -45,7 +45,7 @@ public class Paper {
     private RecordType recordType;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 16)
+    @Column(length = 64)
     private RecordState recordState;
 
     @UpdateTimestamp

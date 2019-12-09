@@ -17,12 +17,14 @@ public class ParsedDataUpdateController {
 
     @PostMapping(value = "/updatePaperData")
     public void updateParsedData(@RequestBody ParsedDataDto parsedDataDto) {
+        logger.info(parsedDataDto.getUid() + ", " + "업데이트 요청");
         parsedDataUpdateService.updateParsedData(parsedDataDto);
         return;
     }
 
     @PostMapping(value = "/updateTcData")
     public void updateTcData(@RequestBody ParsedDataDto parsedDataDto) {
+        logger.info(parsedDataDto.getUid() + ", " + "인용 데이터 업데이트 요청");
         parsedDataUpdateService.updateTcData(parsedDataDto);
         return;
     }

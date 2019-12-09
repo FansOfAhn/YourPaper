@@ -3,8 +3,8 @@
 spring:
   profiles:
     active:
-      - dev
-#      - prod
+#      - dev
+      - prod
 
 
 ---

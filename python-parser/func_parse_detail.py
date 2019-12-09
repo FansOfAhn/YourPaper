@@ -166,7 +166,7 @@ def parse_detail(soup: BeautifulSoup, uid: str):
     if not reprint_name and authors:
         paper_data['reprint'] = authors[0]
 
-    # paper_data['reprint']           = paper_data['reprint']['name']
+    paper_data['reprint']           = paper_data['reprint']['name']
     paper_data['firstAuthor']       = authors[0]
     paper_data['parsedAuthorList']  = authors
     ## 원본 저자 데이터 정제 끝 ##
