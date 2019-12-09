@@ -1,8 +1,9 @@
 
 import { YOUR_PAPER_SERVER_URL } from '_constants';
-import { PaperRecordContainer, FIELD, CRITERIA } from "api/paper-api.js";
+import { PaperRecordContainer, FIELD, CRITERIA, AUTHOR_TYPE_STRING } from "api/paper-api.js";
 
 import WosRecordTable from "./WosRecordTable.js";
+import TcDataTable from './TcDataTable.js';
 
 import React from "react";
 
@@ -18,6 +19,7 @@ import { Search } from "@material-ui/icons";
 
 import CustomInput from "components/CustomInput/CustomInput.js";
 import CustomDropdown from "components/CustomDropdown/CustomDropdown.js";
+import Button from "components/CustomButtons/Button.js";
 
 import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody.js";
@@ -33,7 +35,9 @@ const useStyles = makeStyles(styles);
 export default function DbSearch(props) {
     const classes = useStyles();
     if (!window.sessionStorage.getItem('member')) window.location.href = '/';
-    const member = JSON.parse(window.sessionStorage.getItem('member'));
+
+    // const member = JSON.parse(window.sessionStorage.getItem('member'));
+    const { member } = props;
     const [paperContainer, ] = React.useState(new PaperRecordContainer(member.username, member.token, YOUR_PAPER_SERVER_URL));
 
     const [userQuery, setUserQuery] = React.useState('');
@@ -46,6 +50,7 @@ export default function DbSearch(props) {
     const Loading = loading? <CircularProgress/>: '';
 
     const [deleted, setDeleted] = React.useState(new Set([]));
+    const [tableNo, setTableNo] = React.useState(0);
 
     // search(userQuery, begin, end, symbolicTimeSpan, noLAMR)
     const fieldChange = (e, field) => {
@@ -57,7 +62,7 @@ export default function DbSearch(props) {
         }
     };
 
-    const filter    = [3, 4, 1, 2, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21];
+    const filter    = [3, 4, 1, 2, 5, 6, 7, 8, 9, 11, 12, 13, 15, 16, 17, 18, 19, 21];
     const process = (res) => {
         const records = paperContainer.getRecords(filter);
         const concatedRecords = records.map((r, idx) => 
@@ -68,7 +73,7 @@ export default function DbSearch(props) {
                         if (deleted.has(r[2])) {
                             paperContainer.addOrUpdateOne(r[2], r[5]).then(res => {
                                 console.log(res);
-                                alert(`저자 타입, ${r[5]} 으로 다시 추가하였습니다.`);
+                                alert(`저자 타입, ${AUTHOR_TYPE_STRING[r[5]]} 으로 다시 추가하였습니다.`);
                                 deleted.delete(r[2]);
                                 setDeleted(deleted);
                             }).catch(err => {
@@ -104,6 +109,7 @@ export default function DbSearch(props) {
             Number(e.target.innerText);
         // if (pageState.currentPage === page) return;
         paperContainer.retrive(page).then(res => {
+            console.log('retrive', res);
             process(res);
             setLoading(false);
         }).catch(err => {
@@ -119,9 +125,9 @@ export default function DbSearch(props) {
     const onSearch = () => {
         setLoading(true);
         const criteria = [{ 'field': FIELD[category], 'operation': CRITERIA.LIKE, 'value': userQuery }];
-        paperContainer.listByPage(1, 25, FIELD.TIMES_CITED, false, criteria)
+        paperContainer.listByPage(1, paperContainer.getPageState().pageSize, FIELD.TIMES_CITED, false, criteria)
             .then(res => {
-                console.log(res);
+                console.log('search', res);
                 process(res);
                 setLoading(false);
             }).catch(err => {
@@ -198,13 +204,34 @@ export default function DbSearch(props) {
                 <div className={classes.container} style={{ minHeight: '80vh'}}>
                     <div style={{ height: '100px' }}></div>
                     <div>
-                    <WosRecordTable 
-                        headers={headers} 
-                        records={records} 
-                        pageState={pageState}
-                        onPageClick={onPageClick}
-                        setPageSize={setPageSize}
-                        />
+                        {(records.length && 
+                        <GridContainer justify="center">
+                            <GridItem xs={12}>
+                                <Button color={(tableNo === 0)? 'transparent': 'primary'} onClick={() => setTableNo(0)}>기본 표로 보기</Button>
+                                <Button color={(tableNo === 1)? 'transparent': 'primary'} onClick={() => setTableNo(1)}>피인용 정보 표로 보기</Button>
+                                <Button color="primary">엑셀로 저장하기</Button>
+                            </GridItem>
+                        </GridContainer>)
+                        || ''}
+                        {
+                        (tableNo === 0)? 
+                            <WosRecordTable 
+                                headers={headers} 
+                                records={records} 
+                                pageState={pageState}
+                                onPageClick={onPageClick}
+                                setPageSize={setPageSize}
+                            />:
+                        (tableNo === 1)?
+                            <TcDataTable 
+                                paperContainer={paperContainer}
+                                member={member}
+                                pageState={pageState}
+                                onPageClick={onPageClick}
+                                setPageSize={setPageSize}
+                            />:
+                            ''
+                        }
                     </div>
                 </div>
             </div>

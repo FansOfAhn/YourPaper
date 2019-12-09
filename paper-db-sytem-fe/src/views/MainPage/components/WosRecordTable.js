@@ -13,6 +13,7 @@ import GridItem from "components/Grid/GridItem";
 
 import Paginations from "components/Pagination/Pagination.js";
 import CustomDropdown from "components/CustomDropdown/CustomDropdown.js";
+import { AUTHOR_TYPE_STRING } from 'api/paper-api';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -100,7 +101,11 @@ export default function WosRecordTable(props) {
                         {pageState.firstRecord + idx}
                     </TableCell>
                     {record.map((value, jdx) => {
-                        if (headers[jdx] === '링크') return <TableCell className={classes.cell} key={`val-${jdx}`} component="td" align="right"><a href={value}>이동</a></TableCell>;
+                        if (headers[jdx] === '링크')       return <TableCell className={classes.cell} key={`val-${jdx}`} component="td" align="right"><a href={value}>이동</a></TableCell>;
+                        if (headers[jdx] === '저자 타입') 
+                            return  <TableCell className={classes.cell} key={`val-${jdx}`} component="td" align="right">
+                                        {AUTHOR_TYPE_STRING[value]}
+                                    </TableCell>;
 
                         return <TableCell className={classes.cell} key={`val-${jdx}`} component="td" align="right">{value}</TableCell>;
                     })}

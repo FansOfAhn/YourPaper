@@ -25,6 +25,8 @@ export default function MainPage(props) {
     setContentType(func);
   };
 
+  const member = JSON.parse(window.sessionStorage.getItem('member'));
+
   return (
     <div>
       <Header
@@ -41,7 +43,7 @@ export default function MainPage(props) {
       <Parallax small filter image={require("assets/img/profile-bg.jpg")}/>
       {(() => {
         if      (contentType === 'wos') return <WosSearch/>;
-        else if (contentType === 'pdb') return <DbSearch/>;
+        else if (contentType === 'pdb') return <DbSearch member={member}/>;
         else if (contentType === 'ras') return <RegisteredAuthorSearch/>;
 
         return <>UNKOWN FUNCTION</>;

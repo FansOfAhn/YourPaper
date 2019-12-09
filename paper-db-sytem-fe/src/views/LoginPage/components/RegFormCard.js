@@ -31,6 +31,12 @@ export default function RegFormCard(props) {
     const typoClasses = useTypoStyles();
 
     const [memberApi, ] = React.useState(new MemberApi(YOUR_PAPER_SERVER_URL));
+
+    const [loading, setLoading] = React.useState(false);
+    const Loading = loading? <CircularProgress/>: '';
+    const [searchClient, ] = React.useState(new WokSearchClient(JAX2REST_SERVER_URL));
+    const [searchResultHTML, setSearchResultHTML] = React.useState('');
+    const [stateCard, setStateCard] = React.useState(false);
     const register = (memberDto) => {
         memberDto['organizationList'] = [memberDto.organization];
         memberApi.register(
@@ -39,16 +45,22 @@ export default function RegFormCard(props) {
         ).then(res => {
             console.log(res);
             alert('성공적으로 등록하였습니다. 이어서 논문을 추가합니다.');
+            setStateCard(<Card>
+                <CardBody>
+                    <h3>등록하신 정보로 논문을 추가하는 중입니다. <br/>이 작업은 수 분 소요될 수 있습니다.</h3>
+                    <CircularProgress/>
+                </CardBody>
+            </Card>)
             memberApi.searchByAuthorsAndAdd(
                 memberDto.username, memberDto.password,
                 memberDto.name, memberDto.authorNameList, [memberDto.organization]
             ).then(res => {
                 alert('주어진 정보로 논문을 추가하였습니다.')
+                window.location.href = '/';
             }).catch(err => {
                 console.log(err);
                 alert('주어진 정보로 논문을 추가하지 못했습니다.')
             });
-            window.location.href = '/';
         }).catch(err => {
             console.error(err);
             alert('알 수 없는 이유로 회원가입에 실패했습니다.');
@@ -87,11 +99,6 @@ export default function RegFormCard(props) {
             console.log(err);
         });
     }
-
-    const [loading, setLoading] = React.useState(false);
-    const Loading = loading? <CircularProgress/>: '';
-    const [searchClient, ] = React.useState(new WokSearchClient(JAX2REST_SERVER_URL));
-    const [searchResultHTML, setSearchResultHTML] = React.useState('');
     const searchByAuthors = () => {
         setLoading(true);
         searchClient.setPageSize(0);
@@ -138,7 +145,7 @@ export default function RegFormCard(props) {
 
     const [cardAnimaton, ] = React.useState("");
 
-    return ( 
+    return (stateCard)? stateCard:( 
         <Card className={classes[cardAnimaton]}>
             <CardHeader color="primary" className={classes.cardHeader}>
             <h4>REGISTER</h4>

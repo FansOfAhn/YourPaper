@@ -23,6 +23,18 @@ export const CRITERIA = {
     MATCH   : 'MATCH'    
 }
 
+export const TC_DATA_TABLE_TYPE = {
+    YEAR    : 'YEAR',
+    TAIL    : 'TAIL',
+    FULL    : 'FULL',
+}
+
+export const AUTHOR_TYPE_STRING = {
+    REFFERING   : '타인논문',
+    GENERAL     : '공저자',
+    REPRINT     : '주저자'
+}
+
 export class PaperRecordContainer {
     constructor(username, authorization, SERVER_URL) {
         if (/.*\/$/.test(SERVER_URL))  this.SERVER_URL = SERVER_URL;
@@ -49,7 +61,7 @@ export class PaperRecordContainer {
         //      0    1      2      3     4
                 '행', 'UID', 'DOI', '제목', '링크',
         //      5        6          7      8
-                '교신저자', '저자 상태', '저자', '인용수',
+                '교신저자', '저자 타입', '저자', '인용수',
         //      9        10      11   12    13
                 '발행년월', '저녈명', '권', '호', '페이지',
         //      14        15     16    17       18
@@ -282,10 +294,44 @@ export class PaperRecordContainer {
 
             result[5]  = parsedData.reprint;
             result[14] = JSON.stringify(parsedData.tcDataJson);
-            result[15] = JSON.stringify(parsedData.grades);
-            result[16] = journalImpactJson && JSON.stringify(journalImpactJson.impactFactorByYear);
-            result[17] = journalImpactJson && JSON.stringify(journalImpactJson.jcrDataByYear);
+            result[15] = (parsedData.grades)? parsedData.grades.join(', '):'알 수 없음';
+
+            // result[16] = journalImpactJson && JSON.stringify(journalImpactJson.impactFactorByYear);
+            result[16] = journalImpactJson && journalImpactJson.impactFactorByYear;
+            console.log(result[16]);
+            
+            result[16] = result[16] && result[16][`${new Date().getFullYear() - 1}`] || 'none';
+
+            // result[17] = journalImpactJson && JSON.stringify(journalImpactJson.jcrDataByYear);
+            result[17] = journalImpactJson && journalImpactJson.jcrDataByYear;
+            console.log(result[17]);
+            
+            result[17] = result[17] && result[17][`${new Date().getFullYear() - 1}`] || 'none';
+            if (result[17] !== 'none') {
+                const rankInCategory = result[17]['rankInCategory'];
+                let min = 101;
+                for (let idx = 0; idx < rankInCategory.length; idx++) {
+                    const text = rankInCategory[idx];
+                    const sp = text.split(' of ');
+                    const percent = Number(sp[0]) / Number(sp[1]);
+                    if (min > percent * 100) min = (percent * 100).toFixed(2);
+                }
+                result[17] = min;
+            }
         }
         return result;
+    }
+    getCitingLink(idx) {
+        const record = this.rawResponse.content[idx].paper;
+        return record.paperUrls.citingArticlesUrl;
+    }
+    getCitingPaperJsonList(idx) {
+        const record = this.rawResponse.content[idx];
+        
+        if (!(record.paper.parsedData)) return [];
+        if (!record.paper.parsedData['citingPaperJsonList']) return [];
+
+        const citingPaperJsonList = record.paper.parsedData['citingPaperJsonList'];
+        return citingPaperJsonList;
     }
 }

@@ -2,7 +2,7 @@
 import { JAX2REST_SERVER_URL } from '_constants';
 import { WokSearchClient } from "api/wos-api.js";
 import { YOUR_PAPER_SERVER_URL } from '_constants';
-import { PaperRecordContainer, FIELD, CRITERIA } from "api/paper-api.js";
+import { PaperRecordContainer, AUTHOR_TYPE_STRING } from "api/paper-api.js";
 
 import WosRecordTable from "./WosRecordTable.js";
 
@@ -16,7 +16,7 @@ import classNames from "classnames";
 
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-import { InputAdornment, CircularProgress, Checkbox, Button } from "@material-ui/core";
+import { InputAdornment, CircularProgress, Checkbox } from "@material-ui/core";
 
 // @material-ui/icons
 import { Search, Work, Check } from "@material-ui/icons";
@@ -44,7 +44,7 @@ export default function WosSearch(props) {
     const member = JSON.parse(window.sessionStorage.getItem('member'));
     const [searchClient, ] = React.useState(new WokSearchClient(JAX2REST_SERVER_URL));    
     const [paperContainer,] = React.useState(new PaperRecordContainer(member.username, member.token, YOUR_PAPER_SERVER_URL));
-
+    
     const nowDate = new Date();
     const aWeekAgo = new Date();
     aWeekAgo.setDate(nowDate.getDate() - 7);
@@ -94,12 +94,12 @@ export default function WosSearch(props) {
             authorTypes[idx] = false;
         } else {
             uids[idx] = uid;
-            // const authorType = searchClient.findAuthorTypeOnIdxByAuthorNames(idx, member.memberInfoDto.authorNameList);
-            const authorType = searchClient.findAuthorTypeOnIdxByAuthorNames(idx, ['Baik, Sungwook', 'Baik SW']);
+            const authorType = searchClient.findAuthorTypeOnIdxByAuthorNames(idx, member.memberInfoDto.authorNameList);
+            // const authorType = searchClient.findAuthorTypeOnIdxByAuthorNames(idx, ['Baik, Sungwook', 'Baik SW']);
             authorTypes[idx] = authorType;
             paperContainer.addOrUpdateOne(uid, authorType).then(res => {
                 console.log(res);
-                alert(`저자 타입, ${authorType} 으로 추가하였습니다.`);
+                alert(`저자 타입, ${AUTHOR_TYPE_STRING[authorType]} 으로 추가하였습니다.`);
             }).catch(err => {
                 console.error(err);
                 alert('추가하는 중 오류가 발생했습니다.');
@@ -270,7 +270,7 @@ export default function WosSearch(props) {
                     <div style={{ height: '100px' }}></div>
                     <div>
                     <WosRecordTable 
-                        headers={headers} 
+                        headers={headers}
                         records={records} 
                         pageState={pageState}
                         onPageClick={onPageClick}

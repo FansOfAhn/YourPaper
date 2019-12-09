@@ -9,7 +9,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 
 // @material-ui/icons
-import { Apps, ExitToApp } from "@material-ui/icons";
+import { Apps, ExitToApp, Person } from "@material-ui/icons";
 
 // core components
 import CustomDropdown from "components/CustomDropdown/CustomDropdown.js";
@@ -21,14 +21,44 @@ const useStyles = makeStyles(styles);
 
 export default function HeaderLinks(props) {
   const classes = useStyles();
-
+  
   const logout = (e) => {
     window.sessionStorage.removeItem('member');
     window.location.href = '/';
   };
 
   const { handleFuncClick } = props;
+  const member = JSON.parse(window.sessionStorage.getItem('member'));
+  
+  const dropDown = [
+    <a
+      onClick={e => {handleFuncClick(e, 'wos')}}
+      target="_blank"
+      className={classes.dropdownLink}
+    >
+      Web of Science DB에서 검색하기
+    </a>,
+    <a
+      onClick={e => {handleFuncClick(e, 'pdb')}}
+      target="_blank"
+      className={classes.dropdownLink}
+    >
+      담아둔 논문에서 검색하기
+    </a>
+  ];
 
+  if (member.username === 'admin') {
+    dropDown.push(
+      <a
+        onClick={e => {handleFuncClick(e, 'ras')}}
+        target="_blank"
+        className={classes.dropdownLink}
+      >
+        등록된 저자의 논문보기
+      </a>
+    );
+  }
+  
   return (
     <List className={classes.list}>
       <ListItem className={classes.listItem}>
@@ -40,30 +70,18 @@ export default function HeaderLinks(props) {
             color: "transparent"
           }}
           buttonIcon={Apps}
-          dropdownList={[
-            <a
-              onClick={e => {handleFuncClick(e, 'wos')}}
-              target="_blank"
-              className={classes.dropdownLink}
-            >
-              Web of Science DB에서 검색하기
-            </a>,
-            <a
-              onClick={e => {handleFuncClick(e, 'pdb')}}
-              target="_blank"
-              className={classes.dropdownLink}
-            >
-              담아둔 논문에서 검색하기
-            </a>,
-            <a
-              onClick={e => {handleFuncClick(e, 'ras')}}
-              target="_blank"
-              className={classes.dropdownLink}
-            >
-              등록된 저자의 논문보기
-            </a>
-          ]}
+          dropdownList={dropDown}
         />
+      </ListItem>
+      <ListItem className={classes.listItem}>
+        <Button
+          // onClick = {logout}
+          color="transparent"
+          target="_blank"
+          className={classes.navLink}
+        >
+          <Person className={classes.icons} /> {member.memberInfoDto.name}
+        </Button>
       </ListItem>
       <ListItem className={classes.listItem}>
         <Button
