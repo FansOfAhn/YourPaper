@@ -100,6 +100,7 @@ export default {
     },
     getEndPage(){
       this.endPage = this.$store.getters.MEMBER_PAGING_COUNT_GETTER
+      this.pageDiv = parseInt(this.endPage / 10)
     }
   },
   methods: {

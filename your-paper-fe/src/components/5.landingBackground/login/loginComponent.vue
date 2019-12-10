@@ -46,6 +46,7 @@ export default {
         }).then(res => {
           this.sessionSet(res, `Basic ${btoa(`${this.user.id}:${this.user.password}`)}`)
           if (sessionStorage.getItem('token') !== '') {
+            this.$store.dispatch('SET_PAGE_ACTION', 1)
             this.$router.push('./main')
           }
         }).catch(error => {
