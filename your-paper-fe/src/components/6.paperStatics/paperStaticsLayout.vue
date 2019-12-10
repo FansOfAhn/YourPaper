@@ -88,7 +88,6 @@ export default {
     },
     isLoading () {
       this.paperData = this.$store.getters.MEMBER_PAPER_GETTER
-      this.countCited()
       this.loading = 1
       console.log("paper Data",this.paperData)
     },
@@ -96,16 +95,6 @@ export default {
       this.$store.dispatch('MEMBER_PAPER_PAGING_ACTION', this.page)
     }
   },
-  methods: {
-    countCited () {
-      for (var i in this.paperData) {
-        this.citedStack += this.paperData[i][5]
-      }
-      if (this.citedStack !== 0) {
-        this.$store.dispatch('CITE_COUNT_ACTION', this.citedStack)
-      }
-    }
-  }
 }
 </script>
 

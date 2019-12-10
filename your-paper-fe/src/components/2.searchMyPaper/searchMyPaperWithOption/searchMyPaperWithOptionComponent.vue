@@ -23,27 +23,27 @@
           </p>
         </div>
         <div class="mainOptionFilterContent">
-          <input class="check" type="radio" name="duration" v-model="duration" value="all"/>
+          <input class="check" type="radio" name="duration" v-model="duration" value=""/>
           <p class="text">
             상관없음
           </p>
         </div>
         <div class="mainOptionFilterContent">
-          <input class="check" type="radio" name="duration" v-model="duration" value="oneMonth"/>
-          <p class="text">
-            최근 1개월
-          </p>
-        </div>
-        <div class="mainOptionFilterContent">
-          <input class="check" type="radio" name="duration" v-model="duration" value="sixMonth"/>
-          <p class="text">
-            최근 6개월
-          </p>
-        </div>
-        <div class="mainOptionFilterContent">
-          <input class="check" type="radio" name="duration" v-model="duration" value="oneYear"/>
+          <input class="check" type="radio" name="duration" v-model="duration" value="2019"/>
           <p class="text">
             최근 1년
+          </p>
+        </div>
+        <div class="mainOptionFilterContent">
+          <input class="check" type="radio" name="duration" v-model="duration" value="15"/>
+          <p class="text">
+            최근 2년
+          </p>
+        </div>
+        <div class="mainOptionFilterContent">
+          <input class="check" type="radio" name="duration" v-model="duration" value="2010"/>
+          <p class="text">
+            최근 3년
           </p>
         </div>
       </div> <!--메인 옵션 필터 : 기간-->
@@ -90,7 +90,7 @@
   name: 'MainOption',
   data () {
     return {
-      duration: 'all',
+      duration: '',
       author: '',
       category: 'TI',
       searchValue: ''
@@ -101,6 +101,7 @@
       const criteria = [
         { field: this.$FIELD.AUTHOR_TYPE, operation: this.$CRITERIA.LIKE, value: this.author },
         { field: this.$FIELD.TITLE, operation: this.$CRITERIA.LIKE, value: this.searchValue },
+        { field: this.$FIELD.YEAR, operation: this.$CRITERIA.LIKE, value: this.duration },
       ]
       this.$store.dispatch('SEARCH_MY_PAPER_ACTION', criteria)
     }

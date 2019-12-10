@@ -9,16 +9,15 @@ const state = {
   WOSObject: {},
   searchPaperPage: 0,
   memberPaperPage: null,
-
   // refactoring
-  componentFlag: 1, // component 전환 flag ( 1: search my paper / 2: paper statics / 3: paper edit )
   searchFlag: 0,
+  componentFlag: 1, // component 전환 flag ( 1: search my paper / 2: paper statics / 3: paper edit )
   optionByComponent : [[],                              // 0: empty
     [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 18],      // 1: option for search my paper
     [3, 4, 5, 6, 7, 8, 9, 13, 10, 15, 17, 18, 1, 2, 0], // 2: option for paper statics
     [1, 3, 4, 6, 7, 9]],                                // 3: option for paper edit
   endPage: -1,
-  citeCounter: 0,
+  citeCount: 0,
   grade: [{'SCI': 1}, {'SCIE': 1}, {'SPCIS': 1}, {'NONE': 1}],
   authorType: [],
   sciGrade: 0,
@@ -47,12 +46,11 @@ const getters = {
     return state.searchPaperOnWOS
   },
   CITE_COUNTER_GETTER (state) {
-    return state.citeCounter
+    return state.citeCount
   },
   END_PAGE_GETTER (state){
     return state.endPage
   },
-
   // refactoring
   PAGE_FLAG_GETTER (state){
     return state.componentFlag
@@ -123,9 +121,6 @@ const mutations = {
   MEMBER_PAGING_COUNT_MUTATION (state) {
     state.memberPaperPage = state.apiObject.getPageState().endPage
   },
-  CITE_COUNT_MUTATION (state, payload) {
-    state.citeCounter = payload
-  },
   CLEAR_STORE_MUTATION (state) {
     state.memberPaper = {}
     state.searchPaperOnWOS = {}
@@ -163,14 +158,17 @@ const mutations = {
     })
   },
   SEARCH_MY_PAPER_MUTATION (state, criteria){
+    console.log("search")
     state.searchFlag = 1
     state.apiObject.listByPage(1, 10, FIELD.TITLE, true, criteria).then(res => {
       state.memberPaper = state.apiObject.getRecords(state.optionByComponent[state.componentFlag])
+      console.log("searched", state.apiObject.getRecords(state.optionByComponent[state.componentFlag]))
     }).catch(error => {
       console.log(error)
     })
   },
   COMPUTE_MY_PAPER_INFO_MUTATION (state, {count, criteria}){
+    state.citeCount=0
     let page = 1
     let grade = [
       ['SCI', 0],
@@ -178,6 +176,7 @@ const mutations = {
       ['SCPIS', 0],
       ['NONE', 0]
     ]
+
     let authorType = [
       ['REPRINT', 0],
       ['GENERAL', 0],
@@ -191,35 +190,30 @@ const mutations = {
         for(let i = 0; i< state.loadPaper.length ;i++){
           switch (state.loadPaper[i][3]){
             case 'REPRINT':
-              authorType[0][1] += 1
               state.reprintPaper += 1
               break
             case 'GENERAL':
-              authorType[1][1] += 1
               state.generalPaper += 1
               break
             case 'REFFERING':
-              authorType[2][1] += 1
               state.refPaper += 1
               break
           }
 
-          if(state.loadPaper[i][3] !== 'REFFERING'){
+          if(state.loadPaper[i][3] === 'REPRINT'){
+            state.citeCount += state.loadPaper[i][5]
+            console.log('load paper',state.loadPaper[i][9])
             switch (state.loadPaper[i][9]) {
-              case 'SCI':
-                grade[0][1] += 1
+              case '["SCI"]':
                 state.sciGrade += 1
                 break
-              case 'SCIE':
-                grade[1][1] += 1
+              case '["SCIE"]':
                 state.scieGrade += 1
                 break
-              case 'SCPIS':
-                grade[2][1] += 1
+              case '["SCPIS"]':
                 state.scpisGrade += 1
                 break
               default:
-                grade[3][1] += 1
                 state.noneGrade += 1
                 break
             }
@@ -259,10 +253,6 @@ const actions = {
   MEMBER_PAGING_COUNT_ACTION (context) {
     context.commit('MEMBER_PAGING_COUNT_MUTATION')
   },
-  CITE_COUNT_ACTION (context, payload) {
-    context.commit('CITE_COUNT_MUTATION', payload)
-  },
-
   CLEAR_STORE_ACTION (context) {
     context.commit('CLEAR_STORE_MUTATION')
   }, // 로그아웃시 스토어 클리어 action

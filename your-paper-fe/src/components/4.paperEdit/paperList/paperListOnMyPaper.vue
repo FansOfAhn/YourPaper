@@ -156,14 +156,16 @@ export default {
       return (this.buttonCounter - 1) * 10 + index
     },
     selectPage (index) {
+
+      var page = ((this.buttonCounter - 1) * 10) + index
+      this.$store.dispatch('MEMBER_PAPER_PAGING_ACTION', page)
+
       /*
       var page = ((this.buttonCounter - 1) * 10) + index
       this.objectContainer.retrive(page).then(res => {
         const retriveData = this.objectContainer.getRecords([1, 3, 4, 6, 7, 9])
         this.$store.dispatch('MEMBER_PAGING_ACTION', retriveData)
-      })*/
-      var page = ((this.buttonCounter - 1) * 10) + index
-      this.$store.dispatch('MEMBER_PAPER_PAGING_ACTION', {payload: [1, 3, 4, 6, 7, 9], page: page})
+*/
     }
   }
 }

@@ -26,7 +26,7 @@ export default {
             ['SCI', this.$store.getters.SCI_GRADE_GETTER],
             ['SCIE',this.$store.getters.SCIE_GRADE_GETTER],
             ['SCPIS', this.$store.getters.SCPIS_GRADE_GETTER],
-            ['NONE', this.$store.getters.NONE_GRADE_GETTER],
+            ['ETC', this.$store.getters.NONE_GRADE_GETTER],
           ],
           type : 'donut',
           onclick: function (d, i) { console.log('onclick', d, i); },
