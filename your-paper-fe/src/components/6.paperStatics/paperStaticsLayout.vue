@@ -43,7 +43,7 @@ export default {
   },
   mounted(){
     this.$store.dispatch('MEMBER_OBJECT_SET_ACTION')
-    this.$store.dispatch('SET_SEARCH_FLAG_ACTION')
+    this.$store.dispatch('SET_SEARCH_FLAG_ACTION', 0)
     this.$store.dispatch('SET_END_PAGE_ACTION', {count: this.count, criteria: [this.criteria[0]]})
     //          0    1      2      3     4
     //         '행', 'UID', 'DOI', '제목', '링크',

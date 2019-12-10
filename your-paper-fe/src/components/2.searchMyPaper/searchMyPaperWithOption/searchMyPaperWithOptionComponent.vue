@@ -35,13 +35,13 @@
           </p>
         </div>
         <div class="mainOptionFilterContent">
-          <input class="check" type="radio" name="duration" v-model="duration" value="15"/>
+          <input class="check" type="radio" name="duration" v-model="duration" value="2018"/>
           <p class="text">
             최근 2년
           </p>
         </div>
         <div class="mainOptionFilterContent">
-          <input class="check" type="radio" name="duration" v-model="duration" value="2010"/>
+          <input class="check" type="radio" name="duration" v-model="duration" value="2017"/>
           <p class="text">
             최근 3년
           </p>

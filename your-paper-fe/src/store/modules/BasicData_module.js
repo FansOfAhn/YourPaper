@@ -27,6 +27,7 @@ const state = {
   reprintPaper: 0,
   generalPaper: 0,
   refPaper: 0,
+  orderBy: 0, // 0 : year / 1: times cited
 }
 
 const getters = {
@@ -88,6 +89,9 @@ const getters = {
   REF_COUNT_GETTER (state) {
     return state.refPaper
   },
+  ORDER_BY_GETTER (state) {
+    return state.orderBy
+  }
 }
 
 const mutations = {
@@ -130,12 +134,20 @@ const mutations = {
   SET_PAGE_MUTATION (state, page){
     state.componentFlag = page
   },
-  SET_SEARCH_FLAG_MUTATION (state){
-    state.searchFlag = 0
+  SET_SEARCH_FLAG_MUTATION (state, index){
+    state.searchFlag = index
   },
   NEW_MEMBER_PAPER_MUTATION (state, {count, orderBy, criteria} ){
-    state.apiObject.listByPage(1, count, orderBy, true, criteria).then(res => {
+
+    let flag = true
+
+    if (orderBy === FIELD.YEAR){
+      flag = false
+    }
+
+    state.apiObject.listByPage(1, count, orderBy, flag, criteria).then(res => {
       state.memberPaper = state.apiObject.getRecords(state.optionByComponent[state.componentFlag])
+      console.log( state.apiObject.getRecords(state.optionByComponent[state.componentFlag]))
     }).catch(error => {
       console.log(error)
     })
@@ -149,7 +161,6 @@ const mutations = {
     })
   },
   SET_END_PAGE_MUTATION (state, {count, criteria}) {
-
     state.apiObject.listByPage(1, count, FIELD.TITLE, true, criteria).then(res => {
       console.log('new')
       state.endPage = state.apiObject.getPageState().endPage + 1
@@ -158,7 +169,7 @@ const mutations = {
     })
   },
   SEARCH_MY_PAPER_MUTATION (state, criteria){
-    console.log("search")
+    console.log(criteria)
     state.searchFlag = 1
     state.apiObject.listByPage(1, 10, FIELD.TITLE, true, criteria).then(res => {
       state.memberPaper = state.apiObject.getRecords(state.optionByComponent[state.componentFlag])
@@ -228,6 +239,9 @@ const mutations = {
       console.log(grade, state.authorType)
       page += 1
     }
+  },
+  SET_ORDER_MUTATION (state, index){
+    state.orderBy = index
   }
 }
 
@@ -261,8 +275,8 @@ const actions = {
   SET_PAGE_ACTION (context, page) {
     context.commit('SET_PAGE_MUTATION', page)
   },
-  SET_SEARCH_FLAG_ACTION(context) {
-    context.commit('SET_SEARCH_FLAG_MUTATION')
+  SET_SEARCH_FLAG_ACTION(context, index) {
+    context.commit('SET_SEARCH_FLAG_MUTATION', index)
   },
   NEW_MEMBER_PAPER_ACTION (context, {count, orderBy, criteria}){
     context.commit('NEW_MEMBER_PAPER_MUTATION', {count, orderBy, criteria})
@@ -278,6 +292,9 @@ const actions = {
   },
   COMPUTE_MY_PAPER_INFO_ACTION (context, {count, criteria}){
     context.commit('COMPUTE_MY_PAPER_INFO_MUTATION', {count, criteria})
+  },
+  SET_ORDER_ACTION (context, index){
+    context.commit('SET_ORDER_MUTATION', index)
   }
 }
 export default {

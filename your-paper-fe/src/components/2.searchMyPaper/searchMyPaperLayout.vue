@@ -52,14 +52,17 @@ export default {
     loadNewPage(){
       return this.page
     },
+    isChangeOrder(){
+      return this.$store.getters.ORDER_BY_GETTER
+    }
   },
   watch:{
     isLoading(){
       let loadData = this.$store.getters.MEMBER_PAPER_GETTER
-
+      console.log('load')
       if(this.$store.getters.SEARCH_FLAG_GETTER === 1){
         this.paperData = []
-        this.$store.dispatch('SET_SEARCH_FLAG_ACTION')
+        this.$store.dispatch('SET_SEARCH_FLAG_ACTION', 0)
       }
 
       for(let i = 0; i < loadData.length; i++){
@@ -68,6 +71,10 @@ export default {
     },
     loadNewPage(){
       this.$store.dispatch('MEMBER_PAPER_PAGING_ACTION', this.page)
+    },
+    isChangeOrder () {
+
+
     }
   }
 }

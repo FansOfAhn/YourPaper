@@ -34,14 +34,13 @@
           </p>
         </div>
       </div>
-
       <div class="mainOptionFilter" style="border-bottom: none; padding-left: 40px;">
-        <div class="mainOptionOrderName">
+        <div class="mainOptionOrderName" v-on:click="changeOrderBy(0)" >
           <p class="text">
             최신 순
           </p>
         </div>
-        <div class="mainOptionOrderName">
+        <div class="mainOptionOrderName" v-on:click="changeOrderBy(1)">
           <p class="text">
             인용 순
           </p>
@@ -70,10 +69,31 @@ export default {
         loadStatus: true,
         quotation: true,
         pages: true,
-        url: true
+        url: true,
+        orderBy: 0,
       },
     }
   },
+  methods: {
+    changeOrderBy (index) {
+      console.log('hi')
+      this.$store.dispatch('SET_SEARCH_FLAG_ACTION' ,1)
+      switch (index){
+        case 0:
+          this.orderBy = this.$FIELD.YEAR
+          break
+        case 1:
+          this.orderBy = this.$FIELD.TIMES_CITED
+          break
+
+      }
+      this.$store.dispatch('NEW_MEMBER_PAPER_ACTION', {
+        count: 10,
+        orderBy: this.orderBy,
+        criteria: [{'field': this.$FIELD.TITLE, 'operation': this.$CRITERIA.LIKE, 'value': ' '}]
+      })
+    }
+  }
 }
 
 </script>
